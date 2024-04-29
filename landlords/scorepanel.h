@@ -1,6 +1,8 @@
 #ifndef SCOREPANEL_H
 #define SCOREPANEL_H
 
+/* 分数面板窗口 */
+
 #include <QLabel>
 #include <QWidget>
 

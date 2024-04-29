@@ -1,6 +1,8 @@
 #ifndef GAMEPANEL_H
 #define GAMEPANEL_H
 
+/* 游戏主窗口 */
+
 #include <QLabel>
 #include <QMainWindow>
 #include <QMap>

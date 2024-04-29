@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>224</width>
-    <height>117</height>
+    <height>123</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,6 +22,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -43,6 +44,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -64,6 +66,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -85,6 +88,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -106,6 +110,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -127,6 +132,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -148,6 +154,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -169,6 +176,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
@@ -190,6 +198,7 @@
        <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
+       <underline>false</underline>
       </font>
      </property>
      <property name="styleSheet">
