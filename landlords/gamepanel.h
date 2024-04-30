@@ -61,13 +61,13 @@ private:
     enum CardAlign{Horizontal, Vertical};
     struct PlayerContext
     {
-        QRect cardRect;
-        QRect playHandRect;
-        CardAlign align;
-        bool isFrontSide;
-        QLabel* info;
-        QLabel* roleImg;
-        Cards lastCards;
+        QRect cardRect;             // 玩家扑克牌的显示区域
+        QRect playHandRect;         // 出牌的区域
+        CardAlign align;            // 扑克牌的对齐方式 水平 or 垂直
+        bool isFrontSide;           // 扑克牌显示正面还是被背面
+        QLabel* info;               // 游戏过程中的提示信息
+        QLabel* roleImg;            // 玩家的头像
+        Cards lastCards;            // 玩家刚打出的牌
     };
 
     Ui::GamePanel *ui;
