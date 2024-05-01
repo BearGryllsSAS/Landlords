@@ -148,7 +148,10 @@ Cards GameControl::getSurplusCards()
 
 void GameControl::resetCardData()
 {
+    // 洗牌
     initAllCards();
+
+    // 清空所有玩家的牌
     m_robotLeft->clearCards();
     m_robotRight->clearCards();
     m_user->clearCards();

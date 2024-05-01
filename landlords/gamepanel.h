@@ -25,20 +25,33 @@ public:
     GamePanel(QWidget *parent = nullptr);
     ~GamePanel();
     enum AnimationType{ShunZi, LianDui, Plane, JokerBomb, Bomb, Bet};
+
+    // 初始化游戏控制类信息
     void gameControlInit();
+    // 更新分数面板的分数
     void updatePlayerScore();
+    // 切割并存储图片
     void initCardMap();
+    // 裁剪图片
     void cropImage(QPixmap& pix, int x, int y, Card& c);
+    // 初始化游戏中的按钮组
     void initButtonsGroup();
+    // 初始化玩家在窗口中的上下文环境
     void initPlayerContext();
+    // 初始化游戏场景
     void initGameScene();
+    // 处理游戏的状态
     void gameStatusPrecess(GameControl::GameStatus status);
+    // 发牌
     void startDispatchCard();
     void cardMoveStep(Player* player, int curPos);
+    // 处理分发得到的扑克牌
     void disposeCard(Player* player, const Cards& cards);
+    // 更新玩家的扑克牌在窗口中的显示
     void updatePlayerCards(Player* player);
     QPixmap loadRoleImage(Player::Sex sex, Player::Direction direct, Player::Role role);
 
+    // 定时器的处理动作
     void onDispatchCard();
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status);
     void onGrabLordBet(Player* player, int bet, bool flag);
