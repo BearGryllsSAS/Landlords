@@ -82,6 +82,7 @@ public:
     virtual void thinkPlayHand();
 
 signals:
+    // 通知玩家已经叫地主下注
     void notifyGrabLordBet(Player* player, int bet);
     void notifyPlayHand(Player* player, const Cards& card);
     void notifyPickCards(Player* player, const Cards& cards);

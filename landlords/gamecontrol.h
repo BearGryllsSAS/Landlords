@@ -6,6 +6,7 @@
 #include "userplayer.h"
 #include "cards.h"
 
+// 记录玩家下注的信息
 struct BetRecord
 {
     BetRecord()
@@ -20,7 +21,7 @@ struct BetRecord
     }
     Player* player;
     int bet;
-    int times;
+    int times;                  // 第几次叫地主
 };
 
 class GameControl : public QObject
@@ -62,25 +63,25 @@ public:
     Player* getPendPlayer();
     Cards getPendCards();
 
-    void initAllCards();                            // 初始化扑克牌
-    Card takeOneCard();                             // 每次发一张牌
-    Cards getSurplusCards();                        // 得到最后三张地主牌
-    void resetCardData();                           // 重置卡牌数据
+    void initAllCards();                                                    // 初始化扑克牌
+    Card takeOneCard();                                                     // 每次发一张牌
+    Cards getSurplusCards();                                                // 得到最后三张地主牌
+    void resetCardData();                                                   // 重置卡牌数据
 
-    void startLordCard();                           // 准备叫地主
-    void becomeLord(Player *player, int bet);       // 成为地主
+    void startLordCard();                                                   // 准备叫地主
+    void becomeLord(Player *player, int bet);                               // 成为地主
 
-    void clearPlayerScore();                        // 清空所有玩家的得分
+    void clearPlayerScore();                                                // 清空所有玩家的得分
     int getPlayerMaxBet();
 
-    void onGrabBet(Player* player, int bet);
+    void onGrabBet(Player* player, int bet);                                // 处理叫地主 --- 信号函数
 
     void onPlayHand(Player *player, const Cards &card);
 
 signals:
     void playerStatusChanged(Player* player, PlayerStatus status);          // 通知主窗口玩家状态发生了变化
-    void notifyGrabLordBet(Player* player, int bet, bool flag);
-    void gameStatusChanged(GameStatus status);
+    void notifyGrabLordBet(Player* player, int bet, bool flag);             // 通知主窗口玩家抢地主了
+    void gameStatusChanged(GameStatus status);                              // 通知主窗口游戏状态变化
     void notifyPlayHand(Player* player, const Cards& card);
     void pendingInfo(Player* player, const Cards& card);
 

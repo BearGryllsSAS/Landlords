@@ -55,6 +55,7 @@ public:
     void onDispatchCard();
     // 主窗口处理玩家状态的变化
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status);
+    // 处理玩家抢地主
     void onGrabLordBet(Player* player, int bet, bool flag);
     void onDisposePlayHand(Player* player, const Cards& cards);
     void onCardSelected(Qt::MouseButton button);

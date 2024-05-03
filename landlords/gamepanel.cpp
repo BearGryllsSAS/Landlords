@@ -63,6 +63,7 @@ void GamePanel::gameControlInit()
 
     // 主窗口处理玩家游戏状态的变化
     connect(m_gameCtl, &GameControl::playerStatusChanged, this, &GamePanel::onPlayerStatusChanged);
+    // 主窗口处理玩家发出的抢地主下注信号
     connect(m_gameCtl, &GameControl::notifyGrabLordBet, this, &GamePanel::onGrabLordBet);
     connect(m_gameCtl, &GameControl::gameStatusChanged, this, &GamePanel::gameStatusPrecess);
     connect(m_gameCtl, &GameControl::notifyPlayHand, this, &GamePanel::onDisposePlayHand);
@@ -595,23 +596,30 @@ void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus 
 
 void GamePanel::onGrabLordBet(Player *player, int bet, bool flag)
 {
+    // 显示抢地主的信息提示
+
     PlayerContext context = m_contextMap[player];
     if(bet == 0)
     {
+        // 设置一张不叫地主的图片
         context.info->setPixmap(QPixmap(":/images/buqinag.png"));
     }
     else
     {
         if(flag)
         {
+            // 设置一张第一次叫地主的图片
             context.info->setPixmap(QPixmap(":/images/jiaodizhu.png"));
         }
         else
         {
+            // 设置一张第二、三次抢地主的图片
             context.info->setPixmap(QPixmap(":/images/qiangdizhu.png"));
         }
         showAnimation(Bet, bet);
     }
+
+    // 显示图片
     context.info->show();
 
     m_bgm->playerRobLordMusic(bet, (BGMControl::RoleSex)player->getSex(), flag);
