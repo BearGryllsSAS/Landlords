@@ -51,8 +51,9 @@ public:
     void updatePlayerCards(Player* player);
     QPixmap loadRoleImage(Player::Sex sex, Player::Direction direct, Player::Role role);
 
-    // 定时器的处理动作
+    // 定时器的处理发牌动作
     void onDispatchCard();
+    // 主窗口处理玩家状态的变化
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status);
     void onGrabLordBet(Player* player, int bet, bool flag);
     void onDisposePlayHand(Player* player, const Cards& cards);

@@ -61,6 +61,7 @@ void GamePanel::gameControlInit()
     UserPlayer* user = m_gameCtl->getUserPlayer();
     m_playerList << leftRobot << rightRobot << user;
 
+    // 主窗口处理玩家游戏状态的变化
     connect(m_gameCtl, &GameControl::playerStatusChanged, this, &GamePanel::onPlayerStatusChanged);
     connect(m_gameCtl, &GameControl::notifyGrabLordBet, this, &GamePanel::onGrabLordBet);
     connect(m_gameCtl, &GameControl::gameStatusChanged, this, &GamePanel::gameStatusPrecess);
@@ -250,13 +251,16 @@ void GamePanel::gameStatusPrecess(GameControl::GameStatus status)
         break;
     case GameControl::CallingLord:                                              // 叫地主
     {
+        // 取出三张底牌数据
         CardList last3Card = m_gameCtl->getSurplusCards().toCardList();
+        // 给底牌窗口设置图片
         for(int i=0; i<last3Card.size(); ++i)
         {
              QPixmap front = m_cardMap[last3Card.at(i)]->getImage();
              m_last3Card[i]->setImage(front, m_cardBackImg);
              m_last3Card[i]->hide();
         }
+        // 开始叫地主
         m_gameCtl->startLordCard();
         break;
     }
@@ -548,13 +552,14 @@ void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus 
 {
     switch (status)
     {
-    case GameControl::ThinkingForCallLord:
+    case GameControl::ThinkingForCallLord:                                      // 考虑叫地主
         if(player == m_gameCtl->getUserPlayer())
         {
+            // 切换用户玩家按钮组按钮
             ui->btnGroup->selectPanel(ButtonGroup::CallLord, m_gameCtl->getPlayerMaxBet());
         }
         break;
-    case GameControl::ThinkingForPlayHand:
+    case GameControl::ThinkingForPlayHand:                                      // 考虑出牌
         hidePlayerDropCards(player);
         if(player == m_gameCtl->getUserPlayer())
         {
@@ -573,7 +578,7 @@ void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus 
             ui->btnGroup->selectPanel(ButtonGroup::Empty);
         }
         break;
-    case GameControl::Winning:
+    case GameControl::Winning:                                                  // 判断是否胜利
         m_bgm->stopBGM();
         m_contextMap[m_gameCtl->getLeftRobot()].isFrontSide = true;
         m_contextMap[m_gameCtl->getRightRobot()].isFrontSide = true;

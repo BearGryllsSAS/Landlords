@@ -78,7 +78,7 @@ public:
     void onPlayHand(Player *player, const Cards &card);
 
 signals:
-    void playerStatusChanged(Player* player, PlayerStatus status);
+    void playerStatusChanged(Player* player, PlayerStatus status);          // 通知主窗口玩家状态发生了变化
     void notifyGrabLordBet(Player* player, int bet, bool flag);
     void gameStatusChanged(GameStatus status);
     void notifyPlayHand(Player* player, const Cards& card);

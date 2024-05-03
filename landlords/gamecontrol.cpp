@@ -163,7 +163,9 @@ void GameControl::resetCardData()
 
 void GameControl::startLordCard()
 {
+    // 发牌结束 准备叫地主
     m_currPlayer->prepareCallLord();
+    // 通知主窗口玩家状态发生了变化
     emit playerStatusChanged(m_currPlayer, ThinkingForCallLord);
 }
 
