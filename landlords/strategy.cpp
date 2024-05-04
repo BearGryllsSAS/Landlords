@@ -312,31 +312,40 @@ bool Strategy::whetherToBeat(Cards &cs)
 
 Cards Strategy::findSamePointCards(Card::CardPoint point, int count)
 {
+    // 非法情况
     if(count < 1 || count > 4)
     {
         return Cards();
     }
     if(point == Card::Card_SJ || point == Card::Card_BJ)
     {
+        // 大小王非法情况
         if(count > 1)
         {
             return Cards();
         }
 
+        // 构造这样的大小王
         Card card;
         card.setPoint(point);
         card.setSuit(Card::Suit_Begin);
+
+        // 去传进来的 m_cards 中找
         if(m_cards.contains(card))
         {
             Cards cards;
             cards.add(card);
             return cards;
         }
+
+        // 返回空对象
         return Cards();
     }
 
+    // 不是大小王
     int findCount = 0;
     Cards findCards;
+    // 遍历所有花色
     for(int suit = Card::Suit_Begin+1; suit < Card::Suit_End; suit++)
     {
         Card card;
@@ -363,6 +372,7 @@ QVector<Cards> Strategy::findCardsByCount(int count)
     }
 
     QVector<Cards> cardsArray;
+    // 遍历所有点数
     for(Card::CardPoint point = Card::Card_3; point < Card::Card_End; point = (Card::CardPoint)(point+1))
     {
         if(m_cards.pointCount(point) == count)
@@ -378,6 +388,7 @@ QVector<Cards> Strategy::findCardsByCount(int count)
 Cards Strategy::getRangeCards(Card::CardPoint begin, Card::CardPoint end)
 {
     Cards rangeCards;
+    // 遍历点数范围
     for(Card::CardPoint point = begin; point < end; point = (Card::CardPoint)(point+1))
     {
         int count = m_cards.pointCount(point);
@@ -389,10 +400,11 @@ Cards Strategy::getRangeCards(Card::CardPoint begin, Card::CardPoint end)
 
 QVector<Cards> Strategy::findCardType(PlayHand hand, bool beat)
 {
-    PlayHand::HandType type = hand.getHandType();
-    Card::CardPoint point = hand.getCardPoint();
-    int extra = hand.getExtra();
+    PlayHand::HandType type = hand.getHandType();           // 牌的类型
+    Card::CardPoint point = hand.getCardPoint();            // 牌的点数
+    int extra = hand.getExtra();                            // 牌的相关拓展信息
 
+    // 根据 beat 确定起始点数
     Card::CardPoint beginPoint = beat ? Card::CardPoint(point + 1) : Card::Card_3;
 
     switch(type)
@@ -534,15 +546,21 @@ QVector<Cards> Strategy::getCards(Card::CardPoint point, int number)
 
 QVector<Cards> Strategy::getTripleSingleOrPair(Card::CardPoint begin, PlayHand::HandType type)
 {
+    // 找到点数相同的三张牌
     QVector<Cards> findCardArray = getCards(begin, 3);
+
     if(!findCardArray.isEmpty())
     {
+        // 若存在则将找到的牌从用户手中删除
         Cards remainCards = m_cards;
         remainCards.remove(findCardArray);
+
+        // 搜索单牌或者成对的牌
         Strategy st(m_player, remainCards);
         QVector<Cards> cardsArray = st.findCardType(PlayHand(type, Card::Card_Begin, 0), false);
         if(!cardsArray.isEmpty())
         {
+            // 将找到的牌和三张点数相同的牌进行组合
             for(int i=0; i<findCardArray.size(); ++i)
             {
                 findCardArray[i].add(cardsArray.at(i));
@@ -553,6 +571,8 @@ QVector<Cards> Strategy::getTripleSingleOrPair(Card::CardPoint begin, PlayHand::
             findCardArray.clear();
         }
     }
+
+    // 将最终结果返回给函数调用者
     return findCardArray;
 }
 

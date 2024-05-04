@@ -8,3 +8,4 @@ Makefile*
 object*
 ui*
 *.rc
+.vscode

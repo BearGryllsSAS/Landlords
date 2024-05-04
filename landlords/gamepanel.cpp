@@ -65,6 +65,7 @@ void GamePanel::gameControlInit()
     connect(m_gameCtl, &GameControl::playerStatusChanged, this, &GamePanel::onPlayerStatusChanged);
     // 主窗口处理玩家发出的抢地主下注信号
     connect(m_gameCtl, &GameControl::notifyGrabLordBet, this, &GamePanel::onGrabLordBet);
+    // 主窗口处理游戏状态变化 -- 所有玩家不叫地主地时候触发
     connect(m_gameCtl, &GameControl::gameStatusChanged, this, &GamePanel::gameStatusPrecess);
     connect(m_gameCtl, &GameControl::notifyPlayHand, this, &GamePanel::onDisposePlayHand);
 

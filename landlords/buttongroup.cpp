@@ -68,6 +68,9 @@ void ButtonGroup::initButtons()
 void ButtonGroup::selectPanel(Panel type, int bet)
 {
     ui->stackedWidget->setCurrentIndex(type);
+
+    // 抢地主的时候根据机器人玩家下注的分数选择性地隐藏按钮
+
     if(type != CallLord)
     {
         return;

@@ -72,7 +72,7 @@ public:
     void becomeLord(Player *player, int bet);                               // 成为地主
 
     void clearPlayerScore();                                                // 清空所有玩家的得分
-    int getPlayerMaxBet();
+    int getPlayerMaxBet();                                                  // 得到玩家下注的最高分数
 
     void onGrabBet(Player* player, int bet);                                // 处理叫地主 --- 信号函数
 

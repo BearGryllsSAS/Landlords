@@ -7,8 +7,8 @@ PlayHand::PlayHand()
 
 PlayHand::PlayHand(Cards &cards)
 {
-    classify(cards);
-    judgeCardType();
+    classify(cards);                    // 对扑克牌进行分类:1张的，2张，3张，4张有多少种 --- 计算出每种点数牌的数量
+    judgeCardType();                    // 对牌型进行分类
 }
 
 PlayHand::PlayHand(HandType type, Card::CardPoint pt, int extra)
@@ -94,6 +94,7 @@ void PlayHand::judgeCardType()
     else if(isPlane())
     {
         m_type = Hand_Plane;
+        // 取点数最小的牌
         m_pt = m_threeCard[0];
     }
     else if(isPlaneTwoSingle())
@@ -110,6 +111,7 @@ void PlayHand::judgeCardType()
     {
         m_type = Hand_Seq_Pair;
         m_pt = m_twoCard[0];
+        // 记录连对的个数
         m_extra = m_twoCard.size();
     }
     else if(isSeqSingle())
@@ -182,33 +184,43 @@ int PlayHand::getExtra()
 
 bool PlayHand::canBeat(const PlayHand &other)
 {
+    // 我的牌型未知
     if(m_type == Hand_Unknown)
     {
         return false;
     }
+
+    // 对方放弃出牌
     if(other.m_type == Hand_Pass)
     {
         return true;
     }
+
+    // 我是王炸
     if(m_type == Hand_Bomb_Jokers)
     {
         return true;
     }
+
+    // 我是炸弹并且对方不是炸弹
     if(m_type == Hand_Bomb && other.m_type >= Hand_Single && other.m_type <= Hand_Seq_Single)
     {
         return true;
     }
+
+    // 双方牌型一致
     if(m_type == other.m_type)
     {
-        if(m_type == Hand_Seq_Pair || m_type == Hand_Seq_Single)
+        if(m_type == Hand_Seq_Pair || m_type == Hand_Seq_Single)            // 连对 顺子
         {
             return m_pt > other.m_pt && m_extra == other.m_extra;
         }
-        else
+        else                                                                // 其他
         {
             return m_pt > other.m_pt;
         }
     }
+
     return false;
 }
 
