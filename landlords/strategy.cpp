@@ -10,17 +10,24 @@ Strategy::Strategy(Player *player, const Cards &cards):
 
 Cards Strategy::makeStrategy()
 {
+    // 得到出牌玩家对象以及打出的牌
     Player* pendPlayer = m_player->getPendPlayer();
     Cards pendCards = m_player->getPendCards();
 
+    // 判断上次出牌的玩家是不是我自己
     if(pendPlayer == m_player || pendPlayer == nullptr)
     {
+        // pendPlayer == nullptr --- 游戏刚开始 没有人出牌
+        // 如果是我自己，出牌没有限制
         return firstPlay();
     }
     else
     {
+        // 如果不是我自己，需要找比出牌玩家点数大的牌
         PlayHand type(pendCards);
         Cards beatCards = getGreaterCards(type);
+
+        // 找到了点数大的牌需要考虑是否出牌
         bool shouldBeat = whetherToBeat(beatCards);
         if(shouldBeat)
         {
@@ -273,20 +280,31 @@ Cards Strategy::getGreaterCards(PlayHand type)
 
 bool Strategy::whetherToBeat(Cards &cs)
 {
+    // 没有找到能够击败对方的牌
     if(cs.isEmpty())
     {
         return false;
     }
+
+    // 得到出牌玩家对象
     Player* pendPlayer = m_player->getPendPlayer();
+
     if(m_player->getRole() == pendPlayer->getRole())
     {
+        // 移除要出的牌 对剩下的牌进行判断
         Cards left = m_cards;
         left.remove(cs);
+
+        // 手里的牌所剩无几并且是一个完整的牌型
         if(PlayHand(left).getHandType() != PlayHand::Hand_Unknown)
         {
             return true;
         }
+
+        // 得到 cs 对象中的最小点数
         Card::CardPoint basePoint = PlayHand(cs).getCardPoint();
+
+        // 如果 cs 对象中的牌的最小点数是2,大小王-->不出牌
         if(basePoint == Card::Card_2 || basePoint == Card::Card_SJ || basePoint == Card::Card_BJ)
         {
             return false;
@@ -295,12 +313,15 @@ bool Strategy::whetherToBeat(Cards &cs)
     else
     {
         PlayHand myHand(cs);
+
+        // 如果 cs 是三个2带一,或者带一对，不出牌(保存实力)
         if((myHand.getHandType() == PlayHand::Hand_Triple_Single || myHand.getHandType() == PlayHand::Hand_Triple_Pair)
                 && myHand.getCardPoint() == Card::Card_2)
         {
             return false;
         }
 
+        // 如果 cs 是对2，并且出牌玩家手中的牌数量大于等于10 && 自己的牌的数量大于等于5，暂时放弃出
         if(myHand.getHandType() == PlayHand::Hand_Pair && myHand.getCardPoint() == Card::Card_2
                 && pendPlayer->getCards().cardCount() >= 10 && m_player->getCards().cardCount() >= 5)
         {
@@ -579,6 +600,7 @@ QVector<Cards> Strategy::getTripleSingleOrPair(Card::CardPoint begin, PlayHand::
 QVector<Cards> Strategy::getPlane(Card::CardPoint begin)
 {
     QVector<Cards> findCardArray;
+    // 根据点数和数量进行搜索
     for(Card::CardPoint point = begin; point <= Card::Card_K; point = (Card::CardPoint)(point+1))
     {
         Cards prevCards = findSamePointCards(point, 3);
@@ -595,15 +617,20 @@ QVector<Cards> Strategy::getPlane(Card::CardPoint begin)
 
 QVector<Cards> Strategy::getPlane2SingleOr2Pair(Card::CardPoint begin, PlayHand::HandType type)
 {
+    // 找飞机
     QVector<Cards> findCardArray = getPlane(begin);
+    // 如果找到
     if(!findCardArray.isEmpty())
     {
+        // 将找到的牌从用户手中删除
         Cards remainCards = m_cards;
         remainCards.remove(findCardArray);
+        // 搜索牌型 -- 单牌或成对的牌
         Strategy st(m_player, remainCards);
         QVector<Cards> cardsArray = st.findCardType(PlayHand(type, Card::Card_Begin, 0), false);
         if(cardsArray.size() >= 2)
         {
+            // 找到了 将其添加到飞机组合中
             for(int i=0; i<findCardArray.size(); ++i)
             {
                 Cards tmp;
@@ -625,12 +652,15 @@ QVector<Cards> Strategy::getSepPairOrSeqSingle(CardInfo &info)
     QVector<Cards> findCardsArray;
     if(info.beat)
     {
+        // 连对最少三个 最大值为 A
         for(Card::CardPoint point = info.begin; point <= info.end; point = (Card::CardPoint)(point+1))
         {
             bool found = true;
             Cards seqCards;
+            // 找 extra 个连续的满足条件的对象
             for(int i=0; i<info.extra; ++i)
             {
+                // 基于指定点数和数量进行搜索
                 Cards cards = findSamePointCards((Card::CardPoint)(point + i), info.number);
                 if(cards.isEmpty() || (point + info.extra >= Card::Card_2))
                 {
@@ -654,6 +684,7 @@ QVector<Cards> Strategy::getSepPairOrSeqSingle(CardInfo &info)
     {
         for(Card::CardPoint point = info.begin; point <= info.end; point = (Card::CardPoint)(point+1))
         {
+            // (this->*info.getSeq) 对某一个对象里面的函数指针进行解引用
             Cards baseSeq = (this->*info.getSeq)(point);
             if(baseSeq.isEmpty())
             {
@@ -661,12 +692,16 @@ QVector<Cards> Strategy::getSepPairOrSeqSingle(CardInfo &info)
             }
             findCardsArray << baseSeq;
 
+            // 看看后面还有没有更多的对
             int followed = info.base;
+            // 存储后续找到的满足条件的对
             Cards alreadyFollowedCards;
 
             while(true)
             {
+                // 新的起始点数
                 Card::CardPoint followedPoint = Card::CardPoint(point + followed);
+                // 超过连对的上限
                 if(followedPoint >= Card::Card_2)
                 {
                     break;
@@ -681,7 +716,7 @@ QVector<Cards> Strategy::getSepPairOrSeqSingle(CardInfo &info)
                     alreadyFollowedCards << follwedCards;
                     Cards newSeq = baseSeq;
                     newSeq << alreadyFollowedCards;
-                    findCardsArray << newSeq;
+                    findCardsArray << newSeq;                   // 存储多个满足条件的连对
                     followed++;
                 }
             }
@@ -692,6 +727,7 @@ QVector<Cards> Strategy::getSepPairOrSeqSingle(CardInfo &info)
 
 Cards Strategy::getBaseSeqPair(Card::CardPoint point)
 {
+    // 找到三个点数连续的对
     Cards cards0 = findSamePointCards(point, 2);
     Cards cards1 = findSamePointCards((Card::CardPoint)(point+1), 2);
     Cards cards2 = findSamePointCards((Card::CardPoint)(point+2), 2);

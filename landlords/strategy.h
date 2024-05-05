@@ -4,20 +4,18 @@
 #include "player.h"
 #include "playhand.h"
 
-// 制定出牌策略
-// 第一个出牌 firstPlay
-// 得到比指定牌型大的牌
-// 能大过指定的牌时，判断是出牌还是放行，返回true->出牌，返回false->放行
-
 class Strategy
 {
 public:
     Strategy(Player* player, const Cards& cards);
 
-
+    // 制定出牌策略 --- 机器人玩家使用
     Cards makeStrategy();
+    // 第一个出牌 firstPlay
     Cards firstPlay();
+    // 得到比指定牌型大的牌
     Cards getGreaterCards(PlayHand type);
+    // 能大过指定的牌时，判断是出牌还是放行，返回true->出牌，返回false->放行
     bool whetherToBeat(Cards& cs);
 
     // 找出指定数量 count 的相同点数的牌 point，找出 count 张点数为 point 的牌
@@ -34,26 +32,33 @@ public:
 
 private:
     using function = Cards (Strategy::*)(Card::CardPoint point);
+    // getSepPairOrSeqSingle 的参数
     struct CardInfo
     {
-        Card::CardPoint begin;
-        Card::CardPoint end;
-        int extra;
-        bool beat;
-        int number;
-        int base;
-        function getSeq;
+        Card::CardPoint begin;                  // 牌的起始点数
+        Card::CardPoint end;                    // 牌的终止点数
+        int extra;                              // 牌的额外拓展信息
+        bool beat;                              // 是否要打赢
+        int number;                             // 指定点数牌的数量 顺子-1 连对-2
+        int base;                               // 最基础的顺子或者连对的数量
+        function getSeq;                        // 回调函数
     };
     // 找出并返回不小于指定点数 && 指定张数的一组牌
     QVector<Cards> getCards(Card::CardPoint point, int number);
     // 找 三带一 三代二 的牌
     QVector<Cards> getTripleSingleOrPair(Card::CardPoint begin, PlayHand::HandType type);
+    // 找飞机
     QVector<Cards> getPlane(Card::CardPoint begin);
+    // 找 飞机带一 飞机带二 的牌
     QVector<Cards> getPlane2SingleOr2Pair(Card::CardPoint begin, PlayHand::HandType type);
+    // 找 连对 顺子 的牌
     QVector<Cards> getSepPairOrSeqSingle(CardInfo &info);
-    Cards getBaseSeqPair(Card::CardPoint point);
-    Cards getBaseSeqSingle(Card::CardPoint point);
+    // 找炸弹
     QVector<Cards> getBomb(Card::CardPoint begin);
+    // 回调函数 --- 连对
+    Cards getBaseSeqPair(Card::CardPoint point);
+    // 回调函数 --- 顺子
+    Cards getBaseSeqSingle(Card::CardPoint point);
 
 private:
     Player* m_player;
