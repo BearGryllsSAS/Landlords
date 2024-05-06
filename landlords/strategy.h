@@ -26,8 +26,9 @@ public:
     Cards getRangeCards(Card::CardPoint begin, Card::CardPoint end);
     // 按牌型找牌，并且指定要找的牌是否要大过指定的牌型 --- 得到相同牌型的不同种组合
     QVector<Cards> findCardType(PlayHand hand, bool beat);
-
+    // 从指定的 Cards 对象中挑选出满足条件的顺子 --- 理论顺子
     void pickSeqSingles(QVector<QVector<Cards>> &allSeqRecord, const QVector<Cards> &seqSingle, const Cards& cards);
+    // 最优的顺子的集合的筛选函数 --- 内部先调用 pickSeqSingles
     QVector<Cards> pickOptimalSeqSingles();
 
 private:

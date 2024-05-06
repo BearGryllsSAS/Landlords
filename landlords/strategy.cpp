@@ -226,8 +226,11 @@ Cards Strategy::firstPlay()
 Cards Strategy::getGreaterCards(PlayHand type)
 {
     Player* pendPlayer = m_player->getPendPlayer();
+
+    // 出牌玩家和当前玩家不是一伙的
     if(pendPlayer != nullptr && pendPlayer->getRole() != m_player->getRole() && pendPlayer->getCards().cardCount() <= 3)
     {
+        // 找最大的牌 --- 炸弹
         QVector<Cards> bombs = findCardsByCount(4);
         for(int i=0; i<bombs.size(); ++i)
         {
@@ -236,6 +239,8 @@ Cards Strategy::getGreaterCards(PlayHand type)
                 return bombs[i];
             }
         }
+
+        // 再看看有没有王炸
         Cards sj = findSamePointCards(Card::Card_SJ, 1);
         Cards bj = findSamePointCards(Card::Card_BJ, 1);
         if(!sj.isEmpty() && !bj.isEmpty())
@@ -245,21 +250,27 @@ Cards Strategy::getGreaterCards(PlayHand type)
             return jokers;
         }
     }
+
+    // 当前玩家和下一个玩家不是一伙的
     Player* nextPlayer = m_player->getNextPlayer();
+
+    // 把顺子保留下来 --- 剔除出去
     Cards remain = m_cards;
     remain.remove(Strategy(m_player, remain).pickOptimalSeqSingles());
 
-
+    // 可调用对象包装器包装匿名函数
     auto beatCard = std::bind([=](const Cards & cards){
         QVector<Cards> beatCardsArray = Strategy(m_player, cards).findCardType(type, true);
         if(!beatCardsArray.isEmpty())
         {
             if(m_player->getRole() != nextPlayer->getRole() && nextPlayer->getCards().cardCount() <= 2)
             {
+                // 打出最大的牌
                 return beatCardsArray.back();
             }
             else
             {
+                // 打出最小的牌
                 return beatCardsArray.front();
             }
         }
@@ -269,10 +280,12 @@ Cards Strategy::getGreaterCards(PlayHand type)
     Cards cs;
     if(!(cs = beatCard(remain)).isEmpty())
     {
+        // 先考虑不拆顺子
         return cs;
     }
     else
     {
+        // 然后再拆顺子
         if(!(cs = beatCard(m_cards)).isEmpty()) return cs;
     }
     return Cards();
@@ -479,20 +492,30 @@ QVector<Cards> Strategy::findCardType(PlayHand hand, bool beat)
 
 void Strategy::pickSeqSingles(QVector<QVector<Cards>> &allSeqRecord, const QVector<Cards> &seqSingle, const Cards &cards)
 {
+    // 得到所有顺子的组合
     QVector<Cards> allSeq = Strategy(m_player, cards).findCardType(PlayHand(PlayHand::Hand_Seq_Single, Card::Card_Begin, 0), false);
     if(allSeq.isEmpty())
     {
+        // 结束递归,将满足条件的顺子传递给调用者
         allSeqRecord << seqSingle;
     }
     else
     {
         Cards saveCards = cards;
+
+        // 遍历得到的所有的顺子
         for(int i=0; i<allSeq.size(); ++i)
         {
+            // 将顺子取出
             Cards aScheme = allSeq.at(i);
+
+            // 将顺子从用户手中删除
             Cards temp = saveCards;
             temp.remove(aScheme);
 
+            // 递归检测还有没有其他的顺子
+            // seqArray 存储一轮 for 循环中多轮递归得到的所有的可用的顺子
+            // allSeqRecord 存储多轮 for 循环中多轮递归得到的所有的可用的顺子
             QVector<Cards> seqArray = seqSingle;
             seqArray << aScheme;
 
@@ -514,13 +537,19 @@ QVector<Cards> Strategy::pickOptimalSeqSingles()
         return QVector<Cards>();
     }
 
+    // 找出最优的顺子
     QMap<int, int> seqMarks;
+    // 遍历容器
     for(int i=0; i<seqRecord.size(); ++i)
     {
+        // 备份
         Cards backupCards = m_cards;
+        // 取出每种顺子组合
         QVector<Cards> seqArray = seqRecord[i];
+        // 从所有的手牌中剔除该顺子
         backupCards.remove(seqArray);
 
+        // 判断剩下的单牌数量，数量越少,顺子的组合就越合理
         QVector<Cards> singleArray = Strategy(m_player, backupCards).findCardsByCount(1);
 
         CardList cardList;
@@ -528,11 +557,15 @@ QVector<Cards> Strategy::pickOptimalSeqSingles()
         {
             cardList << singleArray[j].toCardList();
         }
+
+        // 找点数相对较大一点点顺引
         int mark = 0;
         for(int j=0; j<cardList.size(); ++j)
         {
-            mark += cardList[j].point() + 15;
+            mark += cardList[j].point() + 15;           // 3 & 4 和 k
         }
+
+        // mark 有可能重复
         seqMarks.insert(i, mark);
     }
 
@@ -556,6 +589,7 @@ QVector<Cards> Strategy::getCards(Card::CardPoint point, int number)
     QVector<Cards> findCardsArray;
     for(Card::CardPoint pt=point; pt < Card::Card_End; pt = (Card::CardPoint)(pt + 1))
     {
+        // 目的是尽量不拆分别的牌型
         if(m_cards.pointCount(pt) == number)
         {
             Cards cs = findSamePointCards(pt, number);
