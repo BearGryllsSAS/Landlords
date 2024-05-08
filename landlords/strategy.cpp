@@ -43,14 +43,22 @@ Cards Strategy::makeStrategy()
 
 Cards Strategy::firstPlay()
 {
+    // 判断玩家手中是否只剩单一的牌型
     PlayHand hand(m_cards);
     if(hand.getHandType() != PlayHand::Hand_Unknown)
     {
         return m_cards;
     }
+
+    // 不是单一牌型 --- 按照最优解出牌
+
+    // 判断玩家手中是否有顺子
     QVector<Cards> optimalSeq = pickOptimalSeqSingles();
     if(!optimalSeq.isEmpty())
     {
+        // 看看打出顺子是否划算
+
+        // 比价打出顺子前后剩下的牌的单牌的数量
         int baseNum = findCardsByCount(1).size();
         Cards save = m_cards;
         save.remove(optimalSeq);
@@ -65,9 +73,13 @@ Cards Strategy::firstPlay()
     hasPair = hasTriple = hasPlane = false;
     Cards backup = m_cards;
 
+    // 注意搜索顺序
+
+    // 判断玩家手中是否有炸弹
     QVector<Cards> bombArray = findCardType(PlayHand(PlayHand::Hand_Bomb, Card::Card_Begin, 0), false);
     backup.remove(bombArray);
 
+    // 判断玩家手中是否有飞机
     QVector<Cards> planeArray = Strategy(m_player, backup).findCardType(PlayHand(PlayHand::Hand_Plane, Card::Card_Begin, 0), false);
     if(!planeArray.isEmpty())
     {
@@ -75,6 +87,7 @@ Cards Strategy::firstPlay()
         backup.remove(planeArray);
     }
 
+    // 判断玩家手中是否有三张点数相同的牌
     QVector<Cards> seqTripleArray = Strategy(m_player, backup).findCardType(PlayHand(PlayHand::Hand_Triple, Card::Card_Begin, 0), false);
     if(!seqTripleArray.isEmpty())
     {
@@ -82,6 +95,7 @@ Cards Strategy::firstPlay()
         backup.remove(seqTripleArray);
     }
 
+    // 判断玩家手中是否有连对
     QVector<Cards> seqPairArray = Strategy(m_player, backup).findCardType(PlayHand(PlayHand::Hand_Seq_Pair, Card::Card_Begin, 0), false);
     if(!seqPairArray.isEmpty())
     {
@@ -91,6 +105,7 @@ Cards Strategy::firstPlay()
 
     if(hasPair)
     {
+        // 打出最长连对
         Cards maxPair;
         for(int i=0; i<seqPairArray.size(); ++i)
         {
@@ -104,6 +119,7 @@ Cards Strategy::firstPlay()
 
     if(hasPlane)
     {
+        // 飞机带两个对
         bool twoPairFond = false;
         QVector<Cards> pairArray;
         for(Card::CardPoint point = Card::Card_3; point <= Card::Card_10; point = Card::CardPoint(point + 1))
@@ -127,11 +143,12 @@ Cards Strategy::firstPlay()
         }
         else
         {
+            // 飞机带两个单牌
             bool twoSingleFond = false;
             QVector<Cards> singleArray;
             for(Card::CardPoint point = Card::Card_3; point <= Card::Card_10; point = Card::CardPoint(point + 1))
             {
-                if(backup.pointCount(point) == 1)
+                if(backup.pointCount(point) == 1)           // 保证单牌
                 {
                     Cards single = Strategy(m_player, backup).findSamePointCards(point, 1);
                     if(!single.isEmpty())
@@ -153,6 +170,7 @@ Cards Strategy::firstPlay()
             }
             else
             {
+                // 只出飞机
                 return planeArray[0];
             }
         }
@@ -160,10 +178,12 @@ Cards Strategy::firstPlay()
 
     if(hasTriple)
     {
+        // 只出点数小的三张牌
         if(PlayHand(seqTripleArray[0]).getCardPoint() < Card::Card_A)
         {
             for(Card::CardPoint point = Card::Card_3; point <= Card::Card_A; point = Card::CardPoint(point+1))
             {
+                // 找 三带一 三带二
                 int pointCount = backup.pointCount(point);
                 if(pointCount == 1)
                 {
@@ -183,9 +203,13 @@ Cards Strategy::firstPlay()
         }
         return seqTripleArray[0];
     }
+
+    // 出单牌或对牌
+    // 考虑当前玩家下一个玩家以及阵营
     Player* nextPlayer = m_player->getNextPlayer();
     if(nextPlayer->getCards().cardCount() == 1 && m_player->getRole() != nextPlayer->getRole())
     {
+        // 从大到小遍历点数
         for(Card::CardPoint point = Card::CardPoint(Card::Card_End-1);
             point >= Card::Card_3; point = Card::CardPoint(point-1))
         {
@@ -204,6 +228,7 @@ Cards Strategy::firstPlay()
     }
     else
     {
+        // 随便出 --- 从小到大
         for(Card::CardPoint point =  Card::Card_3;
             point < Card::Card_End; point = Card::CardPoint(point+1))
         {
@@ -220,6 +245,7 @@ Cards Strategy::firstPlay()
             }
         }
     }
+
     return Cards();
 }
 
@@ -528,6 +554,8 @@ QVector<Cards> Strategy::pickOptimalSeqSingles()
 {
     QVector<QVector<Cards>> seqRecord;
     QVector<Cards> seqSingles;
+
+    // 保留炸弹和三张的牌
     Cards save = m_cards;
     save.remove(findCardsByCount(4));
     save.remove(findCardsByCount(3));
